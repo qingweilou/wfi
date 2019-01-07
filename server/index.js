@@ -9,15 +9,24 @@ app.get('/dimensions', (req, res) => {
     .then( client => {
             const db = client.db('WFI');
             db.listCollections().toArray().then(items => {
-                const dimensionCollections = items.filter(item => {
-                    return item.name.match(/Dim/g);
+                const dimensionNames = items.filter(item => {
+                    return item.name.match(/Dim$/g);
                 }).map(item=>{ return item.name});
 
-                dimensionCollections.forEach(dColl => {
+                const dimensions = dimensionNames.map(dColl => {
                     coll = db.collection(dColl);
                     items = coll.find({}).project({'_id':0}).toArray();
-                    console.log(items);
+                    return items;
                 });
+                Promise.all(dimensions).then(values =>{
+                    const dims = dimensionNames.map((name, index) =>{
+                        return {
+                            name : name.slice(0, -3),
+                            members: values[index]
+                        }
+                    });
+                    res.send({dimensions: dims});
+                })
                 client.close();
             })
     })
@@ -26,7 +35,7 @@ app.get('/dimensions', (req, res) => {
         client.close();
     });
 
-    const dims = {
+    /*const dims = {
         dimensions: [
         {
              name: 'Account',
@@ -102,11 +111,7 @@ app.get('/dimensions', (req, res) => {
         }
         ]
     }
-    res.send(dims);
-
-    async function getDimension(name) {
-
-    }
+    res.send(dims); */
 });
 
 app.get('/reports/:id', (req, res) => {
