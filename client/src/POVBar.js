@@ -22,7 +22,8 @@ export default class POVBar extends React.Component {
     render() {
         const dims = [];
         this.state && this.state.dimensions && this.state.dimensions.forEach(x => {
-            dims.push(<POV key = {x.name} povKey={x.name} items = {x.members.map(e => e.id)} 
+            //dims.push(<POV key = {x.name} povKey={x.name} items = {x.members.map(e => e.id)} 
+            dims.push(<POV key = {x.name} povKey={x.name} items = {x.members} 
                     povChanged={this.props.povChanged}/>);
         });
         return (
@@ -46,23 +47,28 @@ class POV extends React.Component {
         this.povKey = props.povKey || 'dimension';
         this.items = props.items;
         this.state = {
-            selectedIndex: null
+            selected: null
         }
         this.selected = this.selected.bind(this);
     }
 
     selected(evt) {
-        this.setState({selectedIndex: evt})
+        let node = this.props.items.find(x => x.id === evt);
+        this.setState({selected: node.desc})
         this.props.povChanged(this.props.povKey, evt);
     }
     render() {
         const items = [];
-        this.items.forEach(x => 
-            items.push(<MenuItem key = {x} eventKey={x}> {x} </MenuItem>)
-        );
+        let topNode;
+        this.items.forEach(x => {
+            items.push(<MenuItem key = {x.id} eventKey={x.id}> {x.desc} </MenuItem>) ;
+            if (x.level === 1) {
+                topNode = x.desc;
+            }
+        });
         return (
             <NavDropdown eventKey={this.povKey} 
-                title={this.state.selectedIndex ? this.state.selectedIndex:this.povKey} 
+                title={this.state.selected ? this.state.selected:topNode} 
                 id={this.povKey}
                 onSelect={this.selected}>
                 {items}
