@@ -21,7 +21,6 @@ export default class Report extends React.Component {
 
     getData() {
         const keys = {};
-        
         this.state && this.state.page && this.state.page.forEach(x => {
             if (x.value === 'pov') {
                 keys[x.name] = this.props.pov[x.name];

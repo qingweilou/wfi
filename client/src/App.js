@@ -11,6 +11,7 @@ export default class App extends Component {
         this.povChanged = this.povChanged.bind(this);
     }
     povChanged(dim, value) {
+        console.log("test");
         let pov = this.state.pov;
         pov[dim] = value;
         this.setState({

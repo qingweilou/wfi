@@ -2,8 +2,7 @@ import React from 'react';
 import {Navbar, Nav, NavItem, NavDropdown,MenuItem } from 'react-bootstrap';
 import axios from 'axios';
 
-export default class POVBar extends React.Component {
-    
+export default class POVBar extends React.Component {  
     componentDidMount() {
         this.getDimensionData();
     }
@@ -21,8 +20,7 @@ export default class POVBar extends React.Component {
     }
     render() {
         const dims = [];
-        this.state && this.state.dimensions && this.state.dimensions.forEach(x => {
-            //dims.push(<POV key = {x.name} povKey={x.name} items = {x.members.map(e => e.id)} 
+        this.state && this.state.dimensions && this.state.dimensions.forEach(x => { 
             dims.push(<POV key = {x.name} povKey={x.name} items = {x.members} 
                     povChanged={this.props.povChanged}/>);
         });
@@ -44,8 +42,6 @@ export default class POVBar extends React.Component {
 class POV extends React.Component {
     constructor(props) {
         super(props);
-        this.povKey = props.povKey || 'dimension';
-        this.items = props.items;
         this.state = {
             selected: null
         }
@@ -60,16 +56,17 @@ class POV extends React.Component {
     render() {
         const items = [];
         let topNode;
-        this.items.forEach(x => {
+        this.props.items.forEach(x => {
             items.push(<MenuItem key = {x.id} eventKey={x.id}> {x.desc} </MenuItem>) ;
             if (x.level === 1) {
-                topNode = x.desc;
+                topNode = {id: x.id, desc: x.desc};
             }
         });
+        
         return (
             <NavDropdown eventKey={this.povKey} 
-                title={this.state.selected ? this.state.selected:topNode} 
-                id={this.povKey}
+                title={this.state.selected ? this.state.selected:topNode.desc} 
+                id={this.props.povKey}
                 onSelect={this.selected}>
                 {items}
                 <MenuItem divider />
