@@ -28,6 +28,7 @@ export default class Report extends React.Component {
                 keys[x.name] = x.value;
             }
         });
+        
         if (this.state.rows) {
             keys[this.state.rows.name] = this.state.rows.members.join(',');
         }
@@ -35,7 +36,9 @@ export default class Report extends React.Component {
             keys[this.state.columns.name] = this.state.columns.members.join(',');
         }
         var queryStr = Object.keys(keys).map(key => key + '=' + keys[key]).join('&'); 
-
+        queryStr += '&cubeName=Wfi';
+        queryStr += '&columnDim=' + (this.state.columns ? this.state.columns.name:'');
+        queryStr += '&rowDim=' + (this.state.rows ? this.state.rows.name: '');
         axios.get("/api/data?"+queryStr)
         .then(response => {
             this.setState({

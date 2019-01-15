@@ -13,9 +13,14 @@ export default class POVBar extends React.Component {
             this.setState({
                 dimensions: response.data.dimensions     
             });
+            let pov = {};
             response.data.dimensions.forEach(dim =>{
-                this.props.povChanged(dim.name, dim.default);
+                if (!dim.default) {
+                    dim.default = dim.members.find(x=>x.level === 1);
+                }
+                pov[dim.name] = dim.default.id;
             });
+            this.props.povChanged(pov);
         })
     }
     render() {
@@ -50,9 +55,12 @@ class POV extends React.Component {
 
     selected(evt) {
         let node = this.props.items.find(x => x.id === evt);
-        this.setState({selected: node.desc})
-        this.props.povChanged(this.props.povKey, evt);
+        this.setState({selected: node.desc});
+        let changedPov = {};
+        changedPov[this.props.povKey] = evt;
+        this.props.povChanged(changedPov);
     }
+
     render() {
         const items = [];
         let topNode;

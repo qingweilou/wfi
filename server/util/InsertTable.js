@@ -2,11 +2,12 @@ const timeDimMembers = require('./timeDimMembers');
 const orgUnitDimMembers = require('./orgUnitDimMembers');
 const accountDimMembers = require('./accountDimMembers');
 const versionDimMembers = require('./versionDimMembers');
+const wfiFact = require('./wfiFact');
 
 const MongoClient = require('mongodb').MongoClient;
 const url = 'mongodb://localhost:27017';
 
-function insert(dimname, dimvals) {
+function insert(tblname, tblvals) {
     let client;
     MongoClient.connect(url)
     .then( x => {
@@ -15,14 +16,14 @@ function insert(dimname, dimvals) {
         return db; 
     })
     .then(db =>{
-        db.dropCollection(dimname);
+        db.dropCollection(tblname);
         return db;
     })
     .then(db => {
-        return db.createCollection(dimname);
+        return db.createCollection(tblname);
     })
     .then(coll=>{
-        return coll.insertMany(dimvals);
+        return coll.insertMany(tblvals);
     })
     .then(res =>{
         console.log(res);
@@ -39,3 +40,5 @@ insert('TimeDim', timeDimMembers);
 insert('OrgUnitDim', orgUnitDimMembers);
 insert('AccountDim', accountDimMembers);
 insert('VersionDim', versionDimMembers);
+
+insert('WfiFact', wfiFact);
