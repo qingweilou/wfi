@@ -56,11 +56,13 @@ class MultiDimensionAccess {
                     findCriteria[item+"DimId"] = {$in: members};
                 }
             }) 
+           
             return coll.find(findCriteria).project({'_id':0}).toArray();
         })
         .then(data => {
-            const cols = {name: colDimName + "Dim", members: query.Account.split(',')};
-            const rows = {name: rowDimName + "Dim", members: query.OrgUnit.split(',')};
+            const cols = {name: colDimName + "Dim", members: query[query.columnDim].split(',')};
+            const rows = {name: rowDimName + "Dim", members: query[query.rowDim].split(',')};
+
             const ret = new Array(rows.members.length).fill(0).map(
                 ()=>new Array(cols.members.length).fill(0));
         
@@ -68,18 +70,34 @@ class MultiDimensionAccess {
             const rowHash = {};
 
             cols.members.forEach((x, idx) => {
-                colHash[x] = idx;
+                const leaves = this.getLeaves(cols.name, x);
+                leaves.forEach( y => {
+                    if (!colHash[y]) 
+                        colHash[y] = [];
+                    colHash[y].push(idx);
+                });
             });
             rows.members.forEach((x, idx) => {
-                rowHash[x] = idx;
+                const leaves = this.getLeaves(rows.name, x);
+                leaves.forEach( y => {
+                    if (!rowHash[y]) 
+                        rowHash[y] = [];
+                    rowHash[y].push(idx);
+                });
             });
             const rowDim = rows.name + "Id";
             const colDim = cols.name + "Id";
+            
             for (let i=0; i<data.length; i++) {
-                const rowVal = rowHash[data[i][rowDim]];
-                const colVal = colHash[data[i][colDim]];
-                ret[rowVal][colVal] += data[i].Measure;
+                const rowVals = rowHash[data[i][rowDim]];
+                const colVals = colHash[data[i][colDim]];
+                rowVals.forEach(x =>{
+                    colVals.forEach(y =>{
+                        ret[x][y] += data[i].Measure;
+                    })
+                })            
             };
+            
             return cb(null, {
                 columns : cols.membrs,
                 rows : rows.members,

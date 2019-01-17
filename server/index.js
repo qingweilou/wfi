@@ -13,8 +13,8 @@ app.get('/dimensions', (req, res) => {
 app.get('/reports/:id', (req, res) => {
     const report = {
         name: 'basic report',
-        columns : {name:'Account', members: ['KPI1', 'KPI2']},
-        rows : {name: 'OrgUnit', members: ['80356000','80357000','80358000','80359000']},
+        columns :  {name: 'OrgUnit', members: ['80356000','80357000','80358000','80359000','80400000']},
+        rows : {name:'Account', members: ['KPI1', 'KPI2']},
         page: [{name:'Time', value: 'pov'}, {name: 'Version', value: 'pov'}]
     }
     res.send(report)
