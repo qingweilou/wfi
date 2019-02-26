@@ -12,14 +12,16 @@ export default class Report extends React.Component {
         this.getReport = this.getReport.bind(this);
     }
     componentDidMount() {
-        this.getReport();
-        this.getData();
+        this.getReport()
+        .then( () => this.getData());
     }
     componentWillReceiveProps(nextProps) {
-        this.getData();
+        this.getReport()
+        .then( () => this.getData());
     } 
 
     getData() {
+        console.log(this.state)
         const keys = {};
         this.state && this.state.page && this.state.page.forEach(x => {
             if (x.value === 'pov') {
@@ -39,6 +41,7 @@ export default class Report extends React.Component {
         queryStr += '&cubeName=Wfi';
         queryStr += '&columnDim=' + (this.state.columns ? this.state.columns.name:'');
         queryStr += '&rowDim=' + (this.state.rows ? this.state.rows.name: '');
+        
         axios.get("/api/data?"+queryStr)
         .then(response => {
             this.setState({
@@ -48,26 +51,38 @@ export default class Report extends React.Component {
     }
 
     getReport() {
-        axios.get('/api/reports/1')
-        .then(response => {
-            this.setState(
-                {
-                    name: response.data.name,
-                    page: response.data.page,
-                    columns: response.data.columns,
-                    rows: response.data.rows
-                }
-            )
-        })
+        return new Promise((resolve, reject) => {
+            axios.get('/api/reports/' + (this.props.report ? this.props.report.id : '1'))
+            .then(response => {
+                this.setState(
+                    {
+                        name: response.data.name,
+                        page: response.data.page,
+                        columns: response.data.columns,
+                        rows: response.data.rows
+                    }
+                )
+                resolve(1)
+            })
+        });
     }
 
     render() {
         let grid;
         if (this.state && this.state.columns && this.state.rows) {
             grid = <DataGrid
-                            columns = {this.state.columns.members} 
-                            rows={this.state.rows.members} 
-                            data={this.state.data}/> ;
+                    name = {this.state.name}
+                    columns = {this.state.columns.members} 
+                    rows={this.state.rows.members} 
+                    data={this.state.data}/> ;
+        }
+        let chart;
+        if (this.state && this.state.columns && this.state.rows) {
+            chart = <DataChart
+                    name = {this.state.name}
+                    columns = {this.state.columns.members} 
+                    rows={this.state.rows.members} 
+                    data={this.state.data}/> ;
         }
         return (       
             <Tabs defaultActiveKey={1} id="DataPanel" style = {{paddingLeft: 45}}>
@@ -75,7 +90,7 @@ export default class Report extends React.Component {
                     {grid}
                 </Tab>
                 <Tab eventKey={2} title="Graph">
-                    <DataChart/>
+                    {chart}
                 </Tab>
             </Tabs>
          );

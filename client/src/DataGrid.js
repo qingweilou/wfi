@@ -18,12 +18,15 @@ export default class DataGrid extends React.Component {
             rows.push(thisRow);
         });
 
-        return (        
+        return (
+            <div> 
+                <h2>{this.props.name}</h2>      
                 <ReactDataGrid
                     columns={columns}
                     rowGetter={i => rows[i]}
                     rowsCount= {rows.length}
                     minHeight={250} />
+            </div>
         );
     };
 }

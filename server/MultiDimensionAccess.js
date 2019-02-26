@@ -41,14 +41,17 @@ class MultiDimensionAccess {
         });
     };
 
-    getData(query ,cb ) {
+    getData( query , cb ) {
+        console.log(query);
         const cubeName = query.cubeName+"Fact";
         const colDimName = query.columnDim;
         const rowDimName = query.rowDim;
+
         this.client.then( client => {
             const db = client.db(this.dbName);
             const coll = db.collection(cubeName);
             const findCriteria = {};
+
             Object.keys(query).forEach(item => {
                 if (item !=='cubeName' && item !=='columnDim' && item !== 'rowDim') {
                     const dimMbr = query[item];

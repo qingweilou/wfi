@@ -2,9 +2,14 @@ import React from 'react';
 import {Navbar, Nav, NavItem, NavDropdown,MenuItem } from 'react-bootstrap';
 import axios from 'axios';
 
-export default class POVBar extends React.Component {  
+export default class POVBar extends React.Component {
+    constructor() {
+        super();
+        this.state = {};
+    }  
     componentDidMount() {
         this.getDimensionData();
+        this.getReportList();
     }
 
     getDimensionData() {
@@ -23,12 +28,24 @@ export default class POVBar extends React.Component {
             this.props.povChanged(pov);
         })
     }
+
+    getReportList() {
+        axios.get("/api/reports")
+        .then(response => {
+            console.log(response);
+            this.setState({
+                reports: response.data     
+            })
+        });
+    }
+
     render() {
         const dims = [];
         this.state && this.state.dimensions && this.state.dimensions.forEach(x => { 
             dims.push(<POV key = {x.name} povKey={x.name} items = {x.members} 
                     povChanged={this.props.povChanged}/>);
         });
+
         return (
         <Navbar>
             <Navbar.Header>
@@ -38,6 +55,9 @@ export default class POVBar extends React.Component {
             </Navbar.Header>
             <Nav>              
                 {dims}
+            </Nav>
+            <Nav pullRight>
+                <ReportList items = {this.state.reports} reportSelected = {this.props.reportSelected} />
             </Nav>
         </Navbar>
         );
@@ -79,6 +99,43 @@ class POV extends React.Component {
                 {items}
                 <MenuItem divider />
                 <MenuItem eventKey={3.4}>...more...</MenuItem>
+            </NavDropdown>
+        );
+    };
+}
+
+class ReportList extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            selected: null
+        }
+        this.selected = this.selected.bind(this);
+    }
+
+    selected(evt) {
+        const selected = this.props.items.find(x=>evt === x.id);
+        this.setState({
+            selected
+        });
+        this.props.reportSelected(selected);
+    }
+
+    render() {
+        const items = []
+        const list = this.props.items; 
+        if (list) {
+            list.forEach(x => {
+                items.push(<MenuItem key = {x.id} eventKey={x.id}> {x.name} </MenuItem>) ;
+            });
+        }
+        
+        return (
+            <NavDropdown eventKey= "reportList"
+                title = {this.state.selected ? this.state.selected.name : 'Select a report ...'}
+                id="reportList"
+                onSelect={this.selected}>
+                {items}
             </NavDropdown>
         );
     };
