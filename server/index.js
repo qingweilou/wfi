@@ -25,8 +25,6 @@ app.get('/reports/:id', (req, res) => {
             page: [{name:'OrgUnit', value: 'pov'}, {name: 'Version', value: 'pov'}]
         }
     };
-    console.log(req.params.id);
-    console.log(reports[req.params.id||1])
     res.send(reports[req.params.id||1]);
 });
 
